@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Face Detection</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 50px;
+      }
+
+      h1 {
+        color: #333;
+      }
+
+      #upload {
+        display: none;
+      }
+
+      #image {
+        max-width: 500px;
+        margin: 20px auto;
+        border: 1px solid #ccc;
+      }
+
+      #result {
+        color: #333;
+        margin-bottom: 30px;
+      }
+
+      .btn {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+      }
+
+      .btn:hover {
+        background-color: #0056b3;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <h1>Face Detection</h1>
+    <input type="file" id="upload" accept="image/*" />
+    <label for="upload" class="btn">Select Image</label>
+    <br />
+    <img id="image" src="#" alt="Selected Image" />
+    <h2 id="result">Face Detection Results:</h2>
+
+    <script>
+      $(document).ready(function () {
+        $("#upload").change(function () {
+          var file = this.files[0];
+          var reader = new FileReader();
+
+          reader.onloadend = function () {
+            $("#image").attr("src", reader.result);
+
+            // Face++ API request
+            var apiKey = "tTIoNclsZMkru90I3z599O6g57n-xqCV";
+            var apiSecret = "NkU69v_peNLae6bIqsJ0k6iRO_xBLkJ3";
+            var apiUrl = "https://api-us.faceplusplus.com/facepp/v3/detect";
+
+            $.ajax({
+              url: apiUrl,
+              type: "POST",
+              data: {
+                api_key: apiKey,
+                api_secret: apiSecret,
+                image_base64: reader.result.split(",")[1],
+                return_attributes: "gender,age,smiling,emotion",
+              },
+              success: function (response) {
+                console.log(response);
+
+                // Display face detection results
+                var faceData = response.faces;
+                var resultText = "Face Detection Results:<br>";
+
+                if (faceData.length > 0) {
+                  for (var i = 0; i < faceData.length; i++) {
+                    var attributes = faceData[i].attributes;
+                    resultText += "<br>Face " + (i + 1) + ":<br>";
+                    resultText += "Gender: " + attributes.gender.value + "<br>";
+                    resultText += "Age: " + attributes.age.value + "<br>";
+                    resultText += "Smiling: " + attributes.smile.value + "<br>";
+                    resultText +=
+                      "Emotion: " + attributes.emotion.value + "<br>";
+                  }
+                } else {
+                  resultText += "No faces detected.";
+                }
+
+                $("#result").html(resultText);
+              },
+              error: function (xhr, status, error) {
+                console.log("Error: " + error);
+              },
+            });
+          };
+
+          reader.readAsDataURL(file);
+        });
+      });
+    </script>
+  </body>
+</html>
