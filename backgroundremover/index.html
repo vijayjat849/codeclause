@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Image Background Remover</title>
+    <style>
+      .container {
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin: 0 auto;
+        max-width: 600px;
+        background-image: url("im.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
+      }
+
+      .container h2 {
+        color: #333333;
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+
+      .container p {
+        color: #666666;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      .container a {
+        color: #4caf50;
+        text-decoration: none;
+      }
+
+      .container a:hover {
+        text-decoration: underline;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f3f3f3;
+        padding: 20px;
+        text-align: center;
+        background-image: url("imgg.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center center;
+      }
+
+      h1 {
+        color: #333;
+        margin-bottom: 30px;
+      }
+
+      .upload-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+
+      .upload-container label {
+        background-color: #fff;
+        color: #666;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .upload-container label:hover {
+        background-color: #efefef;
+      }
+
+      #imageUpload {
+        display: none;
+      }
+
+      #removeBackgroundBtn {
+        background-color: #4caf50;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      #removeBackgroundBtn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      #resultImage {
+        max-width: 400px;
+        margin-top: 30px;
+      }
+
+      #downloadLink {
+        background-color: #00cc70;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        margin-top: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Image Background Remover</h1>
+      <div class="upload-container">
+        <label for="imageUpload">Upload an image</label>
+        <input type="file" id="imageUpload" accept="image/*" />
+      </div>
+      <button id="removeBackgroundBtn" disabled>Remove Background</button>
+      <br />
+      <img id="resultImage" style="display: none" />
+      <br />
+      <a id="downloadLink" href="#" download style="display: none">
+        Download Result
+      </a>
+    </div>
+
+    <script>
+      const removeBackgroundBtn = document.getElementById(
+        "removeBackgroundBtn"
+      );
+      const imageUpload = document.getElementById("imageUpload");
+      const resultImage = document.getElementById("resultImage");
+      const downloadLink = document.getElementById("downloadLink");
+
+      imageUpload.addEventListener("change", function () {
+        removeBackgroundBtn.disabled = false;
+      });
+
+      removeBackgroundBtn.addEventListener("click", function () {
+        const file = imageUpload.files[0];
+        const formData = new FormData();
+        formData.append("image_file", file);
+
+        fetch("https://api.remove.bg/v1.0/removebg", {
+          method: "POST",
+          headers: {
+            "X-Api-Key": "9j7F71eSY4eo9XdNrJHq4qeU", // Replace with your Remove.bg API key
+          },
+          body: formData,
+        })
+          .then((response) => response.blob())
+          .then((blob) => {
+            resultImage.src = URL.createObjectURL(blob);
+            resultImage.style.display = "inline";
+
+            downloadLink.href = URL.createObjectURL(blob);
+            downloadLink.style.display = "inline";
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      });
+    </script>
+  </body>
+</html>
